@@ -4,7 +4,7 @@
 #include <time.h>
 #include "processo.h"
 
-// Função para converter string de data para time_t (compatível com Windows)
+// Função para converter string de data
 time_t parseDateTime(const char *str)
 {
   struct tm tm = {0};
@@ -18,7 +18,7 @@ time_t parseDateTime(const char *str)
     tm.tm_hour = hour;
     tm.tm_min = min;
     tm.tm_sec = sec;
-    tm.tm_isdst = -1; // Let mktime determine daylight saving time
+    tm.tm_isdst = -1;
   }
   return mktime(&tm);
 }
@@ -33,7 +33,6 @@ Processo *lerProcessos(const char *nomeArquivo, int *total)
     return NULL;
   }
 
-  // Contar linhas (exceto cabeçalho)
   int count = 0;
   char linha[256];
   while (fgets(linha, sizeof(linha), arquivo))
@@ -44,7 +43,6 @@ Processo *lerProcessos(const char *nomeArquivo, int *total)
 
   rewind(arquivo);
 
-  // Alocar memória para os processos
   Processo *processos = malloc(*total * sizeof(Processo));
   if (!processos)
   {
@@ -53,19 +51,15 @@ Processo *lerProcessos(const char *nomeArquivo, int *total)
     return NULL;
   }
 
-  // Ler cabeçalho e ignorar
   fgets(linha, sizeof(linha), arquivo);
 
-  // Ler cada linha de dados
   for (int i = 0; i < *total; i++)
   {
     if (!fgets(linha, sizeof(linha), arquivo))
       break;
 
-    // Remover newline se existir
     linha[strcspn(linha, "\n")] = '\0';
 
-    // Extrair campos da linha
     char *token = strtok(linha, ",");
     if (!token)
       continue;
@@ -74,7 +68,6 @@ Processo *lerProcessos(const char *nomeArquivo, int *total)
     token = strtok(NULL, ",");
     if (!token)
       continue;
-    // Remover aspas e espaços em branco
     char *num = token;
     while (*num == ' ' || *num == '"')
       num++;
@@ -88,7 +81,6 @@ Processo *lerProcessos(const char *nomeArquivo, int *total)
     token = strtok(NULL, ",");
     if (!token)
       continue;
-    // Remover espaços em branco
     char *data = token;
     while (*data == ' ')
       data++;
@@ -136,7 +128,7 @@ int compararPorDataDecrescente(const void *a, const void *b)
   return difftime(p2->data_ajuizamento, p1->data_ajuizamento);
 }
 
-// Função para ordenar processos por data (decrescente)
+// Função para ordenar processos por data
 void ordenarPorDataDecrescente(Processo *processos, int total)
 {
   qsort(processos, total, sizeof(Processo), compararPorDataDecrescente);
@@ -195,9 +187,6 @@ void listarProcessosComMultiplosAssuntos(Processo *processos, int total)
   printf("Processos com múltiplos assuntos:\n");
   for (int i = 0; i < total; i++)
   {
-    // Verificar se o campo id_assunto contém múltiplos valores
-    // (Implementação simplificada - assumindo que {} indica múltiplos)
-    // Na prática, seria necessário analisar o formato específico dos dados
     printf("ID: %ld, Número: %s\n", processos[i].id, processos[i].numero);
   }
 }
